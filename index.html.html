@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Travas Mentais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        .scale-card {
+            transition: transform 0.2s;
+        }
+        .scale-card:hover {
+            transform: translateY(-4px);
+        }
+        @media print {
+            header, button:not(.no-print), .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .print-content {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-[#181818] text-gray-900 dark:text-gray-100 transition-colors">
+
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold cursor-pointer" onclick="navigateTo('home')">🧠 Dashboard de Travas Mentais</h1>
+            <div class="flex gap-2 md:gap-4">
+                <button onclick="showPatientRegistrationForm()" class="px-3 py-2 text-sm md:text-base bg-white/20 hover:bg-white/30 rounded-lg transition">
+                    ➕ Cadastrar
+                </button>
+                <button onclick="navigateTo('patients')" class="px-3 py-2 text-sm md:text-base bg-white/20 hover:bg-white/30 rounded-lg transition">
+                    👥 Pacientes
+                </button>
+                <button onclick="navigateTo('analytics')" class="px-3 py-2 text-sm md:text-base bg-white/20 hover:bg-white/30 rounded-lg transition">
+                    📊 Analytics
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="app" class="container mx-auto px-4 py-8">
+        <!-- Content will be injected here -->
+    </main>
+
+    <!-- Modal Container -->
+    <div id="modalContainer"></div>
+
+    <script>
+        // Dark mode setup
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Data structure for mental blocks
+        const mentalBlocks = {
+            autoconfianca: {
+                name: 'Autoconfiança',
+                icon: '💪',
+                color: 'bg-blue-500',
+                pdfUrl: 'https://pfst.cf2.poecdn.net/base/application/b4f692792130a7c87ec581465dd5da295a3a4bfadd113d6ec7c24c3993c93eb8',
+                symptoms: [
+                    'Dúvida constante sobre suas capacidades',
+                    'Comparação excessiva com os outros',
+                    'Medo de fracasso ou rejeição',
+                    'Dificuldade em reconhecer conquistas',
+                    'Insegurança em tomar decisões'
+                ],
+                techniques: [
+                    'Registro de sucessos diários',
+                    'Técnica da cadeira vazia (Gestalt)',
+                    'Afirmações positivas baseadas em evidências',
+                    'Desafio de crenças limitantes',
+                    'Exposição gradual a situações desafiadoras'
+                ],
+                protocols: {
+                    'Destrave Amor Próprio': 'Trabalhar autocompaixão e aceitação',
+                    'Destrave Relacionamentos': 'Fortalecer assertividade e limites'
+                },
+                adultQuestions: [
+                    'Eu me sinto capaz de enfrentar novos desafios',
+                    'Confio nas minhas decisões',
+                    'Reconheço minhas qualidades e conquistas',
+                    'Me sinto seguro(a) ao expressar minhas opiniões',
+                    'Acredito que posso aprender e crescer'
+                ],
+                childQuestions: [
+                    'Eu acho que consigo fazer coisas novas',
+                    'Eu gosto de tentar coisas diferentes',
+                    'Eu me sinto bem comigo mesmo(a)',
+                    'Eu acho que sou bom(a) em algumas coisas',
+                    'Eu não tenho medo de errar'
+                ]
+            },
+            escassez: {
+                name: 'Escassez',
+                icon: '💰',
+                color: 'bg-green-500',
+                pdfUrl: 'https://pfst.cf2.poecdn.net/base/application/e9a99752937f91a57034e59db499faf6574406ba26dad911cba8611b6c1a2905',
+                symptoms: [
+                    'Medo constante de falta de recursos',
+                    'Dificuldade em gastar mesmo tendo dinheiro',
+                    'Sensação de "nunca é suficiente"',
+                    'Acumulação excessiva de objetos',
+                    'Ansiedade financeira desproporcional'
+                ],
+                techniques: [
+                    'Reestruturação cognitiva sobre abundância',
+                    'Exercícios de gratidão',
+                    'Planejamento financeiro consciente',
+                    'Técnica do "suficiente"',
+                    'Trabalho com crenças de origem familiar'
+                ],
+                protocols: {
+                    'Destrave Pais': 'Ressignificar mensagens sobre dinheiro',
+                    'Destrave Amor Próprio': 'Reconhecer valor pessoal além de bens'
+                },
+                adultQuestions: [
+                    'Sinto que tenho recursos suficientes para viver bem',
+                    'Consigo compartilhar sem medo de faltar',
+                    'Não me comparo excessivamente com quem tem mais',
+                    'Celebro minhas conquistas financeiras',
+                    'Confio que vou conseguir o que preciso'
+                ],
+                childQuestions: [
+                    'Eu divido minhas coisas com outras crianças',
+                    'Eu acho que tenho brinquedos suficientes',
+                    'Não fico triste quando vejo outras crianças com coisas legais',
+                    'Eu sei que minha família cuida de mim',
+                    'Eu não guardo tudo só para mim'
+                ]
+            },
+            aprovacao: {
+                name: 'Aprovação',
+                icon: '👍',
+                color: 'bg-pink-500',
+                pdfUrl: 'https://pfst.cf2.poecdn.net/base/application/249df57131114d4eff3fae6b6280e41ea1c20110291447ddf43613468caad7d2',
+                symptoms: [
+                    'Necessidade excessiva de validação externa',
+                    'Dificuldade em dizer "não"',
+                    'Mudança de comportamento conforme o público',
+                    'Medo de decepcionar os outros',
+                    'Desconforto com críticas construtivas'
+                ],
+                techniques: [
+                    'Validação interna vs externa',
+                    'Treino assertivo',
+                    'Exercícios de autenticidade',
+                    'Trabalho com criança interior',
+                    'Estabelecimento de limites saudáveis'
+                ],
+                protocols: {
+                    'Destrave Relacionamentos': 'Desenvolver relacionamentos autênticos',
+                    'Destrave Amor Próprio': 'Autoaprovação e autovalidação'
+                },
+                adultQuestions: [
+                    'Eu me sinto bem mesmo quando alguém discorda de mim',
+                    'Consigo dizer não quando necessário',
+                    'Não mudo minhas opiniões para agradar',
+                    'Me sinto confortável sendo autêntico(a)',
+                    'Aceito críticas sem me sentir rejeitado(a)'
+                ],
+                childQuestions: [
+                    'Eu brinco do que eu gosto, mesmo que outros não gostem',
+                    'Eu consigo dizer não para meus amigos',
+                    'Eu não mudo de ideia só para os outros gostarem de mim',
+                    'Eu me sinto bem sendo eu mesmo(a)',
+                    'Não fico muito triste quando alguém não gosta do que eu faço'
+                ]
+            },
+            perfeicao: {
+                name: 'Perfeição',
+                icon: '✨',
+                color: 'bg-purple-500',
+                pdfUrl: 'https://pfst.cf2.poecdn.net/base/application/72a319c13d13885f70a1355cb2b8339e9dbc4ac86741fdd22bb1cb4c2b09b2c9',
+                symptoms: [
+                    'Padrões irrealisticamente altos',
+                    'Procrastinação por medo de imperfeição',
+                    'Autocrítica severa',
+                    'Dificuldade em delegar tarefas',
+                    'Insatisfação crônica com resultados'
+                ],
+                techniques: [
+                    'Aceitação de "suficientemente bom"',
+                    'Exposição a imperfeições controladas',
+                    'Reestruturação de pensamentos autocríticos',
+                    'Mindfulness e autocompaixão',
+                    'Celebração de progresso vs perfeição'
+                ],
+                protocols: {
+                    'Destrave Amor Próprio': 'Aceitação de imperfeições',
+                    'Destrave Pais': 'Desconstruir padrões impostos'
+                },
+                adultQuestions: [
+                    'Aceito que "suficientemente bom" é aceitável',
+                    'Não me paraliso por medo de errar',
+                    'Sou gentil comigo quando cometo erros',
+                    'Consigo delegar sem precisar controlar tudo',
+                    'Celebro progressos mesmo que imperfeitos'
+                ],
+                childQuestions: [
+                    'Eu entrego meus trabalhos mesmo que não estejam perfeitos',
+                    'Não apago e refaço muitas vezes',
+                    'Não fico muito bravo(a) comigo quando erro',
+                    'Eu aceito ajuda dos outros',
+                    'Eu me divirto mesmo quando não sou o(a) melhor'
+                ]
+            },
+            servidor: {
+                name: 'Servidor',
+                icon: '🤝',
+                color: 'bg-yellow-500',
+                symptoms: [
+                    'Colocar necessidades dos outros sempre à frente',
+                    'Dificuldade em pedir ajuda',
+                    'Sensação de culpa ao priorizar-se',
+                    'Esgotamento por excesso de compromissos',
+                    'Ressentimento não expresso'
+                ],
+                techniques: [
+                    'Exercícios de priorização pessoal',
+                    'Treino de comunicação de necessidades',
+                    'Trabalho com culpa',
+                    'Estabelecimento de limites claros',
+                    'Autocompaixão e autocuidado'
+                ],
+                protocols: {
+                    'Destrave Amor Próprio': 'Valor próprio independente de servir',
+                    'Destrave Relacionamentos': 'Reciprocidade saudável'
+                },
+                adultQuestions: [
+                    'Consigo priorizar minhas necessidades sem culpa',
+                    'Peço ajuda quando preciso',
+                    'Digo não a pedidos que me sobrecarregam',
+                    'Cuido de mim com a mesma dedicação que cuido dos outros',
+                    'Não sinto que preciso fazer tudo sozinho(a)'
+                ],
+                childQuestions: [
+                    'Eu deixo outros me ajudarem',
+                    'Eu brinco também, não só ajudo',
+                    'Não me sinto mal quando faço algo para mim',
+                    'Eu sei que não preciso fazer tudo sozinho(a)',
+                    'Eu peço ajuda quando preciso'
+                ]
+            },
+            vitima: {
+                name: 'Vítima',
+                icon: '😔',
+                color: 'bg-red-500',
+                symptoms: [
+                    'Atribuição de controle externo sobre a vida',
+                    'Dificuldade em assumir responsabilidade',
+                    'Foco em injustiças e problemas',
+                    'Sensação de impotência',
+                    'Narrativa de sofrimento constante'
+                ],
+                techniques: [
+                    'Reestruturação de lócus de controle',
+                    'Identificação de agência pessoal',
+                    'Trabalho com responsabilidade vs culpa',
+                    'Narrativa de superação',
+                    'Exercícios de empoderamento'
+                ],
+                protocols: {
+                    'Destrave Pais': 'Liberar padrões de vitimização familiar',
+                    'Destrave Amor Próprio': 'Reconhecer força pessoal'
+                },
+                adultQuestions: [
+                    'Reconheço meu papel nas situações que vivo',
+                    'Foco em soluções mais que em problemas',
+                    'Me sinto capaz de mudar minha realidade',
+                    'Não culpo sempre fatores externos',
+                    'Celebro minha capacidade de superação'
+                ],
+                childQuestions: [
+                    'Eu acho que posso mudar coisas na minha vida',
+                    'Quando algo dá errado, eu penso no que posso fazer',
+                    'Não fico só reclamando dos problemas',
+                    'Eu sei que posso fazer coisas boas acontecerem',
+                    'Não culpo sempre os outros quando algo ruim acontece'
+                ]
+            },
+            paterna: {
+                name: 'Paterna',
+                icon: '👨‍👩‍👧',
+                color: 'bg-indigo-500',
+                symptoms: [
+                    'Repetição de padrões familiares disfuncionais',
+                    'Dificuldade em estabelecer identidade própria',
+                    'Medo de decepcionar figuras parentais',
+                    'Conflitos não resolvidos com pais',
+                    'Crenças limitantes herdadas'
+                ],
+                techniques: [
+                    'Trabalho com genograma familiar',
+                    'Técnicas de diferenciação (Bowen)',
+                    'Carta terapêutica (não enviada)',
+                    'Ressignificação de memórias',
+                    'Desenvolvimento de identidade própria'
+                ],
+                protocols: {
+                    'Destrave Pais': 'Ressignificar relação com figuras parentais',
+                    'Destrave Relacionamentos': 'Padrões relacionais saudáveis'
+                },
+                adultQuestions: [
+                    'Tomo decisões baseadas em meus valores, não apenas nos dos meus pais',
+                    'Reconheço influências familiares sem ser controlado(a) por elas',
+                    'Tenho relacionamentos saudáveis independente do modelo parental',
+                    'Me sinto livre para escolher meu próprio caminho',
+                    'Perdoei ou estou em paz com questões familiares'
+                ],
+                childQuestions: [
+                    'Eu posso gostar de coisas diferentes dos meus pais',
+                    'Não tenho muito medo de deixar meus pais chateados',
+                    'Eu me sinto amado(a) mesmo quando erro',
+                    'Posso falar sobre meus sentimentos em casa',
+                    'Não preciso ser igual aos meus pais quando crescer'
+                ]
+            },
+            competencia: {
+                name: 'Competência',
+                icon: '🎯',
+                color: 'bg-teal-500',
+                symptoms: [
+                    'Medo de ser considerado incompetente',
+                    'Síndrome do impostor',
+                    'Necessidade de saber tudo antes de agir',
+                    'Evitação de novas áreas de aprendizado',
+                    'Ansiedade de desempenho'
+                ],
+                techniques: [
+                    'Reestruturação de crenças sobre competência',
+                    'Exposição gradual a situações de aprendizado',
+                    'Normalização de erros como parte do processo',
+                    'Desenvolvimento de mentalidade de crescimento',
+                    'Celebração de tentativas vs resultados'
+                ],
+                protocols: {
+                    'Destrave Amor Próprio': 'Valor além da competência',
+                    'Destrave Pais': 'Liberar pressões por performance'
+                },
+                adultQuestions: [
+                    'Me sinto confortável aprendendo coisas novas',
+                    'Aceito que não preciso saber tudo',
+                    'Não sinto que sou uma fraude em minha área',
+                    'Peço ajuda quando não sei algo',
+                    'Celebro meu aprendizado contínuo'
+                ],
+                childQuestions: [
+                    'Eu gosto de aprender coisas novas',
+                    'Não tenho medo de perguntar quando não sei',
+                    'Não me sinto burro(a) quando erro',
+                    'Eu tento coisas novas mesmo sem saber fazer',
+                    'Não preciso ser o(a) melhor da turma'
+                ]
+            },
+            procrastinacao: {
+                name: 'Procrastinação',
+                icon: '⏰',
+                color: 'bg-orange-500',
+                symptoms: [
+                    'Adiamento crônico de tarefas importantes',
+                    'Preferência por gratificação imediata',
+                    'Ansiedade ao pensar em tarefas pendentes',
+                    'Dificuldade em iniciar projetos',
+                    'Trabalho de última hora recorrente'
+                ],
+                techniques: [
+                    'Técnica Pomodoro',
+                    'Quebra de tarefas em passos pequenos',
+                    'Identificação de gatilhos emocionais',
+                    'Trabalho com perfeccionismo subjacente',
+                    'Sistema de recompensas progressivas'
+                ],
+                protocols: {
+                    'Destrave Amor Próprio': 'Reduzir autocrítica paralisante',
+                    'Destrave Ambiente': 'Organizar contexto facilitador'
+                },
+                adultQuestions: [
+                    'Inicio tarefas importantes sem adiá-las',
+                    'Não deixo tudo para última hora',
+                    'Consigo trabalhar mesmo quando não estou "com vontade"',
+                    'Não me distraio facilmente de responsabilidades',
+                    'Mantenho compromissos comigo mesmo(a)'
+                ],
+                childQuestions: [
+                    'Eu faço minha lição de casa sem ficar enrolando',
+                    'Não deixo tudo para última hora',
+                    'Consigo começar tarefas mesmo quando são chatas',
+                    'Não fico vendo TV quando tenho coisas para fazer',
+                    'Termino o que começo'
+                ]
+            },
+            ambiente: {
+                name: 'Ambiente',
+                icon: '🏠',
+                color: 'bg-cyan-500',
+                symptoms: [
+                    'Sensação de não pertencimento',
+                    'Desconforto crônico em ambientes sociais/profissionais',
+                    'Dificuldade em adaptar-se a novos contextos',
+                    'Conflitos recorrentes no ambiente',
+                    'Sensação de estar "no lugar errado"'
+                ],
+                techniques: [
+                    'Análise de adequação pessoa-ambiente',
+                    'Desenvolvimento de habilidades sociais',
+                    'Trabalho com identidade e valores',
+                    'Estratégias de adaptação saudável',
+                    'Exploração de novos contextos'
+                ],
+                protocols: {
+                    'Destrave Relacionamentos': 'Melhorar interações sociais',
+                    'Destrave Amor Próprio': 'Autenticidade em contextos diversos'
+                },
+                adultQuestions: [
+                    'Me sinto confortável nos ambientes que frequento',
+                    'Consigo me adaptar a novos lugares e grupos',
+                    'Tenho relacionamentos positivos onde estou',
+                    'Não sinto que "não pertenço"',
+                    'Escolho ambientes alinhados com meus valores'
+                ],
+                childQuestions: [
+                    'Eu gosto da minha escola',
+                    'Tenho amigos que gostam de mim',
+                    'Não me sinto estranho(a) perto de outras crianças',
+                    'Me sinto bem em casa',
+                    'Gosto de participar de atividades com outras pessoas'
+                ]
+            }
+        };
+
+        // IndexedDB Setup
+        let db;
+        const DB_NAME = 'TravasMentaisDB';
+        const DB_VERSION = 1;
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+
+                    if (!database.objectStoreNames.contains('patients')) {
+                        database.createObjectStore('patients', { keyPath: 'name' });
+                    }
+
+                    if (!database.objectStoreNames.contains('assessments')) {
+                        database.createObjectStore('assessments', { keyPath: 'id' });
+                    }
+
+                    if (!database.objectStoreNames.contains('confidentiality')) {
+                        database.createObjectStore('confidentiality', { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        // Application state
+        let appState = {
+            currentPage: 'home',
+            currentBlock: null,
+            patients: [],
+            currentPatient: null,
+            assessments: [],
+            confidentialityAgreements: []
+        };
+
+        // Load data from IndexedDB
+        async function loadData() {
+            try {
+                const patientsTransaction = db.transaction(['patients'], 'readonly');
+                const patientsStore = patientsTransaction.objectStore('patients');
+                const patientsRequest = patientsStore.getAll();
+
+                const assessmentsTransaction = db.transaction(['assessments'], 'readonly');
+                const assessmentsStore = assessmentsTransaction.objectStore('assessments');
+                const assessmentsRequest = assessmentsStore.getAll();
+
+                const confidentialityTransaction = db.transaction(['confidentiality'], 'readonly');
+                const confidentialityStore = confidentialityTransaction.objectStore('confidentiality');
+                const confidentialityRequest = confidentialityStore.getAll();
+
+                patientsRequest.onsuccess = () => {
+                    appState.patients = patientsRequest.result || [];
+                };
+
+                assessmentsRequest.onsuccess = () => {
+                    appState.assessments = assessmentsRequest.result || [];
+                };
+
+                confidentialityRequest.onsuccess = () => {
+                    appState.confidentialityAgreements = confidentialityRequest.result || [];
+                    render();
+                };
+            } catch (error) {
+                console.log('Error loading data:', JSON.stringify({ message: error.message }));
+            }
+        }
+
+        // Save state to IndexedDB
+        function saveState() {
+            if (!db) return;
+
+            try {
+                // Save patients
+                const patientsTransaction = db.transaction(['patients'], 'readwrite');
+                const patientsStore = patientsTransaction.objectStore('patients');
+                appState.patients.forEach(patient => {
+                    patientsStore.put(patient);
+                });
+
+                // Save assessments
+                const assessmentsTransaction = db.transaction(['assessments'], 'readwrite');
+                const assessmentsStore = assessmentsTransaction.objectStore('assessments');
+                appState.assessments.forEach(assessment => {
+                    assessmentsStore.put(assessment);
+                });
+
+                // Save confidentiality agreements
+                const confidentialityTransaction = db.transaction(['confidentiality'], 'readwrite');
+                const confidentialityStore = confidentialityTransaction.objectStore('confidentiality');
+                appState.confidentialityAgreements.forEach(agreement => {
+                    confidentialityStore.put(agreement);
+                });
+            } catch (error) {
+                console.log('Error saving data:', JSON.stringify({ message: error.message }));
+            }
+        }
+
+        // Navigation
+        function navigateTo(page, data = null) {
+            appState.currentPage = page;
+            if (data) {
+                if (data.block) appState.currentBlock = data.block;
+                if (data.patient) appState.currentPatient = data.patient;
+            }
+            render();
+        }
+
+        // Custom modals
+        function showModal(title, content, actions = []) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 fade-in';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">${title}</h3>
+                        <div class="text-gray-700 dark:text-gray-300 mb-6">${content}</div>
+                        <div class="flex justify-end gap-3">
+                            ${actions.map(action => `
+                                <button onclick="${action.onClick}" class="px-4 py-2 ${action.className || 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'} rounded-lg transition">
+                                    ${action.label}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modalContainer').innerHTML = '';
+            document.getElementById('modalContainer').appendChild(modal);
+        }
+
+        function closeModal() {
+            document.getElementById('modalContainer').innerHTML = '';
+        }
+
+        // Patient Registration Form
+        function showPatientRegistrationForm() {
+            const formId = 'patient-reg-form-' + Date.now();
+            showModal('Cadastro de Paciente', `
+                <form id="${formId}" class="space-y-4">
+                    <div>
+                        <label class="block mb-2 font-medium">Nome Completo *</label>
+                        <input type="text" name="fullName" required
+                            class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block mb-2 font-medium">Data de Nascimento</label>
+                        <input type="date" name="birthDate"
+                            class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block mb-2 font-medium">Email</label>
+                        <input type="email" name="email"
+                            class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block mb-2 font-medium">Telefone</label>
+                        <input type="tel" name="phone"
+                            class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block mb-2 font-medium">Observações</label>
+                        <textarea name="notes" rows="3"
+                            class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg
+                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+                    </div>
+                </form>
+            `, [
+                { label: 'Cancelar', onClick: 'closeModal()' },
+                {
+                    label: 'Cadastrar',
+                    onClick: `submitPatientRegistration('${formId}')`,
+                    className: 'bg-primary text-white hover:bg-primary/90'
+                }
+            ]);
+        }
+
+        function submitPatientRegistration(formId) {
+            const form = document.getElementById(formId);
+            if (!form.checkValidity()) {
+                showModal('Atenção', '<p>Por favor, preencha todos os campos obrigatórios.</p>', [
+                    { label: 'OK', onClick: 'closeModal()' }
+                ]);
+                return;
+            }
+
+            const formData = new FormData(form);
+            const patientData = {
+                name: formData.get('fullName'),
+                fullName: formData.get('fullName'),
+                birthDate: formData.get('birthDate'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                notes: formData.get('notes'),
+                createdAt: new Date().toISOString(),
+                assessments: []
+            };
+
+            // Check if patient already exists
+            const existingPatient = appState.patients.find(p => p.name === patientData.name);
+            if (existingPatient) {
+                showModal('Paciente já existe', '<p>Já existe um paciente cadastrado com este nome.</p>', [
+                    { label: 'OK', onClick: 'closeModal()' }
+                ]);
+                return;
+            }
+
+            appState.patients.push(patientData);
+            saveState();
+            closeModal();
+
+            // Ask if user wants to sign confidentiality agreement
+            showConfirmDialog('Deseja prosseguir com o Termo de Confidencialidade para este paciente?', () => {
+                showConfidentialityAgreement(patientData.name);
+            });
+        }
+
+        // Confidentiality Agreement
+        function showConfidentialityAgreement(patientName) {
+            const agreementId = 'agreement-' + Date.now();
+            showModal('Termo de Confidencialidade e Consentimento', `
+                <div class="space-y-4 text-sm">
+                    <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg max-h-60 overflow-y-auto">
+                        <h4 class="font-bold mb-2">TERMO DE CONFIDENCIALIDADE E CONSENTIMENTO INFORMADO</h4>
+                        <p class="mb-2"><strong>Paciente:</strong> ${patientName}</p>
+                        <p class="mb-2"><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+
+                        <h5 class="font-bold mt-4 mb-2">1. CONFIDENCIALIDADE</h5>
+                        <p class="mb-2">Todas as informações compartilhadas durante as sessões terapêuticas são estritamente confidenciais e protegidas pelo sigilo profissional, conforme estabelecido pelo Código de Ética Profissional.</p>
+
+                        <h5 class="font-bold mt-4 mb-2">2. EXCEÇÕES À CONFIDENCIALIDADE</h5>
+                        <p class="mb-2">O sigilo poderá ser quebrado em situações de:</p>
+                        <ul class="list-disc pl-5 mb-2">
+                            <li>Risco iminente de vida do paciente ou de terceiros</li>
+                            <li>Suspeita de abuso ou maus-tratos a menores ou idosos</li>
+                            <li>Determinação judicial</li>
+                        </ul>
+
+                        <h5 class="font-bold mt-4 mb-2">3. ARMAZENAMENTO DE DADOS</h5>
+                        <p class="mb-2">Os dados coletados durante as avaliações serão armazenados de forma segura e utilizados exclusivamente para fins terapêuticos.</p>
+
+                        <h5 class="font-bold mt-4 mb-2">4. CONSENTIMENTO</h5>
+                        <p class="mb-2">Ao assinar este termo, declaro estar ciente e de acordo com as condições acima estabelecidas.</p>
+                    </div>
+
+                    <form id="${agreementId}" class="space-y-3">
+                        <div>
+                            <label class="block mb-2 font-medium">Nome do Paciente/Responsável *</label>
+                            <input type="text" name="patientSignature" value="${patientName}" required
+                                class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg
+                                bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-medium">Nome do Terapeuta *</label>
+                            <input type="text" name="therapistSignature" required
+                                class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg
+                                bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <input type="checkbox" name="consent" required id="consent-${agreementId}"
+                                class="mt-1 w-4 h-4">
+                            <label for="consent-${agreementId}" class="text-sm">
+                                Declaro ter lido e concordado com todos os termos acima
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            `, [
+                { label: 'Cancelar', onClick: 'closeModal()' },
+                {
+                    label: 'Assinar e Confirmar',
+                    onClick: `submitConfidentialityAgreement('${agreementId}', '${patientName}')`,
+                    className: 'bg-primary text-white hover:bg-primary/90'
+                }
+            ]);
+        }
+
+        function submitConfidentialityAgreement(formId, patientName) {
+            const form = document.getElementById(formId);
+            if (!form.checkValidity()) {
+                showModal('Atenção', '<p>Por favor, preencha todos os campos e aceite os termos.</p>', [
+                    { label: 'OK', onClick: 'closeModal()' }
+                ]);
+                return;
+            }
+
+            const formData = new FormData(form);
+            const agreement = {
+                id: Date.now(),
+                patientName: patientName,
+                patientSignature: formData.get('patientSignature'),
+                therapistSignature: formData.get('therapistSignature'),
+                signedAt: new Date().toISOString(),
+                consent: true
+            };
+
+            appState.confidentialityAgreements.push(agreement);
+            saveState();
+            closeModal();
+
+            showModal('Termo Assinado com Sucesso', `
+                <p class="mb-4">O termo de confidencialidade foi assinado e armazenado com sucesso.</p>
+                <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded">
+                    <p><strong>Paciente:</strong> ${agreement.patientName}</p>
+                    <p><strong>Data:</strong> ${new Date(agreement.signedAt).toLocaleString('pt-BR')}</p>
+                </div>
+            `, [
+                { label: 'OK', onClick: 'closeModal(); navigateTo("patients")', className: 'bg-primary text-white hover:bg-primary/90' }
+            ]);
+        }
+
+        function showConfirmDialog(message, onConfirm) {
+            showModal('Confirmar', `<p>${message}</p>`, [
+                { label: 'Cancelar', onClick: 'closeModal()', className: 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600' },
+                { label: 'Confirmar', onClick: `closeModal(); (${onConfirm.toString()})()`, className: 'bg-primary text-white hover:bg-primary/90' }
+            ]);
+        }
+
+        function showInputDialog(title, placeholder, onSubmit) {
+            const inputId = 'modal-input-' + Date.now();
+            showModal(title, `
+                <input id="${inputId}" type="text" placeholder="${placeholder}"
+                    class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg
+                    bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            `, [
+                { label: 'Cancelar', onClick: 'closeModal()' },
+                {
+                    label: 'Confirmar',
+                    onClick: `const val = document.getElementById('${inputId}').value; if(val) { closeModal(); (${onSubmit.toString()})(val); } else { alert('Por favor preencha o campo'); }`,
+                    className: 'bg-primary text-white hover:bg-primary/90'
+                }
+            ]);
+            setTimeout(() => document.getElementById(inputId).focus(), 100);
+        }
+
+        // Get color for intensity value
+        function getIntensityColor(value) {
+            if (value <= 3) return 'bg-green-500 text-white';
+            if (value <= 6) return 'bg-yellow-500 text-gray-900';
+            return 'bg-red-500 text-white';
+        }
+
+        // Calculate intensity
+        function calculateIntensity(values) {
+            const sum = values.reduce((a, b) => a + b, 0);
+            const avg = sum / values.length;
+            return {
+                sum: sum,
+                average: avg.toFixed(2),
+                level: avg <= 3.3 ? 'Baixa' : avg <= 6.6 ? 'Média' : 'Alta'
+            };
+        }
+
+        // Render functions
+        function renderHome() {
+            return `
+                <div class="fade-in">
+                    <h2 class="text-3xl font-bold mb-6">Travas Mentais</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mb-8">
+                        Selecione uma trava mental para visualizar sintomas, técnicas e realizar avaliações.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                        ${Object.keys(mentalBlocks).map(key => {
+                            const block = mentalBlocks[key];
+                            return `
+                                <div onclick="navigateTo('block', {block: '${key}'})"
+                                    class="scale-card ${block.color} text-white p-6 rounded-xl shadow-lg cursor-pointer">
+                                    <div class="text-4xl mb-3">${block.icon}</div>
+                                    <h3 class="text-lg font-bold">${block.name}</h3>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBlock() {
+            const block = mentalBlocks[appState.currentBlock];
+            if (!block) return renderHome();
+
+            return `
+                <div class="fade-in">
+                    <button onclick="navigateTo('home')" class="mb-4 text-primary hover:underline">
+                        ← Voltar
+                    </button>
+
+                    <div class="${block.color} text-white p-8 rounded-xl shadow-lg mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="text-6xl">${block.icon}</div>
+                            <div>
+                                <h2 class="text-3xl font-bold">${block.name}</h2>
+                                <p class="opacity-90">Análise e intervenção</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="showTab('symptoms')" id="tab-symptoms"
+                                class="tab-btn px-4 py-2 text-base font-medium border-b-2 border-transparent hover:border-primary transition">
+                                Sintomas
+                            </button>
+                            <button onclick="showTab('techniques')" id="tab-techniques"
+                                class="tab-btn px-4 py-2 text-base font-medium border-b-2 border-transparent hover:border-primary transition">
+                                Técnicas
+                            </button>
+                            <button onclick="showTab('protocols')" id="tab-protocols"
+                                class="tab-btn px-4 py-2 text-base font-medium border-b-2 border-transparent hover:border-primary transition">
+                                Protocolos
+                            </button>
+                            <button onclick="showTab('assessment-adult')" id="tab-assessment-adult"
+                                class="tab-btn px-4 py-2 text-base font-medium border-b-2 border-transparent hover:border-primary transition">
+                                Avaliação Adulto
+                            </button>
+                            <button onclick="showTab('assessment-child')" id="tab-assessment-child"
+                                class="tab-btn px-4 py-2 text-base font-medium border-b-2 border-transparent hover:border-primary transition">
+                                Avaliação Infantil
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tab-content">
+                        <!-- Tab content will be rendered here -->
+                    </div>
+                </div>
+            `;
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-primary', 'text-primary');
+            });
+            const activeTab = document.getElementById('tab-' + tabName);
+            if (activeTab) {
+                activeTab.classList.add('border-primary', 'text-primary');
+            }
+
+            const block = mentalBlocks[appState.currentBlock];
+            const content = document.getElementById('tab-content');
+
+            if (tabName === 'symptoms') {
+                content.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-bold mb-4">Sintomas Característicos</h3>
+                        <ul class="space-y-3">
+                            ${block.symptoms.map(s => `
+                                <li class="flex items-start gap-3">
+                                    <span class="text-primary mt-1">●</span>
+                                    <span>${s}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else if (tabName === 'techniques') {
+                content.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-bold mb-4">Técnicas de Intervenção</h3>
+                        <ul class="space-y-3">
+                            ${block.techniques.map(t => `
+                                <li class="flex items-start gap-3">
+                                    <span class="text-primary mt-1">✓</span>
+                                    <span>${t}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else if (tabName === 'protocols') {
+                content.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-bold mb-4">Protocolos de Tratamento</h3>
+                        <div class="space-y-4">
+                            ${Object.entries(block.protocols).map(([protocol, description]) => `
+                                <div class="border-l-4 border-primary pl-4 py-2">
+                                    <h4 class="font-bold text-lg">${protocol}</h4>
+                                    <p class="text-gray-600 dark:text-gray-400">${description}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (tabName === 'assessment-adult') {
+                content.innerHTML = renderAssessmentForm('adult');
+            } else if (tabName === 'assessment-child') {
+                content.innerHTML = renderAssessmentForm('child');
+            }
+        }
+
+        function renderAssessmentForm(type) {
+            const block = mentalBlocks[appState.currentBlock];
+            const questions = type === 'adult' ? block.adultQuestions : block.childQuestions;
+            const title = type === 'adult' ? 'Avaliação Adulto' : 'Avaliação Infantil';
+            const description = type === 'adult'
+                ? 'Avalie cada afirmação de 1 (discordo totalmente) a 10 (concordo totalmente)'
+                : 'Perguntas adaptadas para crianças (TDAH, TEA, TOP). Escala: 1 (nunca) a 10 (sempre)';
+
+            return `
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-bold mb-2">${title}</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">${description}</p>
+
+                    <form id="assessment-form-${type}" onsubmit="submitAssessment(event, '${type}')" class="space-y-6">
+                        ${questions.map((q, i) => `
+                            <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                                <label class="block mb-3 font-medium">${i + 1}. ${q}</label>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-gray-500">1</span>
+                                    <input type="range" min="1" max="10" value="5"
+                                        id="${type}-q${i}" name="q${i}"
+                                        oninput="updateRangeDisplay('${type}-q${i}')"
+                                        class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                                    <span class="text-sm text-gray-500">10</span>
+                                    <span id="${type}-q${i}-value"
+                                        class="ml-3 px-3 py-1 rounded font-bold min-w-[60px] text-center ${getIntensityColor(5)}">
+                                        5
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
+
+                        <div class="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg" id="${type}-result">
+                            <p class="text-center text-gray-600 dark:text-gray-400">
+                                Complete a avaliação para ver o resultado
+                            </p>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="button" onclick="calculateAssessmentPreview('${type}')"
+                                class="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg font-medium transition">
+                                Calcular Intensidade
+                            </button>
+                            <button type="submit"
+                                class="flex-1 px-6 py-3 bg-primary text-white hover:bg-primary/90 rounded-lg font-medium transition">
+                                Salvar Avaliação
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+
+        function updateRangeDisplay(id) {
+            const input = document.getElementById(id);
+            const display = document.getElementById(id + '-value');
+            const value = parseInt(input.value);
+            display.textContent = value;
+            display.className = `ml-3 px-3 py-1 rounded font-bold min-w-[60px] text-center ${getIntensityColor(value)}`;
+        }
+
+        function calculateAssessmentPreview(type) {
+            const form = document.getElementById('assessment-form-' + type);
+            const values = [];
+            const inputs = form.querySelectorAll('input[type="range"]');
+            inputs.forEach(input => values.push(parseInt(input.value)));
+
+            const result = calculateIntensity(values);
+            const resultDiv = document.getElementById(type + '-result');
+            resultDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div>
+                        <div class="text-2xl font-bold text-primary">${result.sum}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Pontuação Total</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-primary">${result.average}</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Média</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold ${result.level === 'Baixa' ? 'text-green-500' : result.level === 'Média' ? 'text-yellow-500' : 'text-red-500'}">
+                            ${result.level}
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Intensidade</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function submitAssessment(event, type) {
+            event.preventDefault();
+
+            if (!appState.currentPatient) {
+                showInputDialog('Identificar Paciente', 'Nome ou iniciais do paciente', (patientName) => {
+                    saveAssessmentWithPatient(type, patientName);
+                });
+            } else {
+                saveAssessmentWithPatient(type, appState.currentPatient);
+            }
+        }
+
+        function saveAssessmentWithPatient(type, patientName) {
+            const form = document.getElementById('assessment-form-' + type);
+            const values = [];
+            const inputs = form.querySelectorAll('input[type="range"]');
+            inputs.forEach(input => values.push(parseInt(input.value)));
+
+            const result = calculateIntensity(values);
+
+            const assessment = {
+                id: Date.now(),
+                patientName: patientName,
+                block: appState.currentBlock,
+                blockName: mentalBlocks[appState.currentBlock].name,
+                type: type,
+                date: new Date().toISOString(),
+                values: values,
+                result: result
+            };
+
+            appState.assessments.push(assessment);
+
+            // Add or update patient
+            let patient = appState.patients.find(p => p.name === patientName);
+            if (!patient) {
+                patient = {
+                    name: patientName,
+                    createdAt: new Date().toISOString(),
+                    assessments: []
+                };
+                appState.patients.push(patient);
+            }
+
+            saveState();
+
+            showModal('Avaliação Salva', `
+                <p class="mb-4">A avaliação foi salva com sucesso!</p>
+                <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded">
+                    <p><strong>Paciente:</strong> ${patientName}</p>
+                    <p><strong>Trava:</strong> ${mentalBlocks[appState.currentBlock].name}</p>
+                    <p><strong>Tipo:</strong> ${type === 'adult' ? 'Adulto' : 'Infantil'}</p>
+                    <p><strong>Intensidade:</strong> ${result.level} (${result.average})</p>
+                </div>
+            `, [
+                { label: 'OK', onClick: 'closeModal()', className: 'bg-primary text-white hover:bg-primary/90' }
+            ]);
+        }
+
+        function renderPatients() {
+            if (appState.patients.length === 0) {
+                return `
+                    <div class="fade-in text-center py-16">
+                        <div class="text-6xl mb-4">👥</div>
+                        <h2 class="text-2xl font-bold mb-2">Nenhum paciente cadastrado</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            As avaliações salvas criarão automaticamente os perfis de pacientes
+                        </p>
+                        <button onclick="navigateTo('home')"
+                            class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                            Ir para Travas Mentais
+                        </button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="fade-in">
+                    <h2 class="text-3xl font-bold mb-6">Pacientes</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${appState.patients.map(patient => {
+                            const patientAssessments = appState.assessments.filter(a => a.patientName === patient.name);
+                            return `
+                                <div onclick="navigateTo('patient-detail', {patient: '${patient.name}'})"
+                                    class="scale-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg cursor-pointer hover:shadow-xl transition">
+                                    <h3 class="text-xl font-bold mb-2">${patient.name}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                        Cadastrado em ${new Date(patient.createdAt).toLocaleDateString('pt-BR')}
+                                    </p>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm">${patientAssessments.length} avaliações</span>
+                                        <span class="text-primary">Ver detalhes →</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPatientDetail() {
+            const patientAssessments = appState.assessments.filter(a => a.patientName === appState.currentPatient);
+
+            if (patientAssessments.length === 0) {
+                return `
+                    <div class="fade-in">
+                        <button onclick="navigateTo('patients')" class="mb-4 text-primary hover:underline">
+                            ← Voltar
+                        </button>
+                        <h2 class="text-3xl font-bold mb-6">${appState.currentPatient}</h2>
+                        <p class="text-gray-600 dark:text-gray-400">Nenhuma avaliação encontrada para este paciente.</p>
+                    </div>
+                `;
+            }
+
+            // Group by block
+            const byBlock = {};
+            patientAssessments.forEach(a => {
+                if (!byBlock[a.blockName]) byBlock[a.blockName] = [];
+                byBlock[a.blockName].push(a);
+            });
+
+            return `
+                <div class="fade-in">
+                    <button onclick="navigateTo('patients')" class="mb-4 text-primary hover:underline">
+                        ← Voltar
+                    </button>
+
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                        <h2 class="text-3xl font-bold mb-2">${appState.currentPatient}</h2>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            ${patientAssessments.length} avaliações realizadas
+                        </p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <button onclick="generateFinalReport('${appState.currentPatient}')"
+                                class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                                📋 Gerar Relatório Final
+                            </button>
+                            <button onclick="printPatientData('${appState.currentPatient}')"
+                                class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition">
+                                🖨️ Imprimir
+                            </button>
+                            <button onclick="exportPatientData('${appState.currentPatient}', 'csv')"
+                                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+                                📊 Exportar CSV
+                            </button>
+                            <button onclick="exportPatientData('${appState.currentPatient}', 'json')"
+                                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                                📄 Exportar JSON
+                            </button>
+                        </div>
+                    </div>
+
+                    <h3 class="text-2xl font-bold mb-4">Histórico de Avaliações</h3>
+
+                    ${Object.entries(byBlock).map(([blockName, assessments]) => `
+                        <div class="mb-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                            <h4 class="text-xl font-bold mb-4">${blockName}</h4>
+                            <div class="space-y-4">
+                                ${assessments.sort((a, b) => new Date(b.date) - new Date(a.date)).map(a => `
+                                    <div class="border-l-4 border-primary pl-4 py-2">
+                                        <div class="flex justify-between items-start flex-wrap gap-2">
+                                            <div>
+                                                <p class="font-medium">
+                                                    ${a.type === 'adult' ? '👤 Avaliação Adulto' : '👶 Avaliação Infantil'}
+                                                </p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                    ${new Date(a.date).toLocaleString('pt-BR')}
+                                                </p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-2xl font-bold ${a.result.level === 'Baixa' ? 'text-green-500' : a.result.level === 'Média' ? 'text-yellow-500' : 'text-red-500'}">
+                                                    ${a.result.average}
+                                                </p>
+                                                <p class="text-sm">${a.result.level}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderAnalytics() {
+            if (appState.assessments.length === 0) {
+                return `
+                    <div class="fade-in text-center py-16">
+                        <div class="text-6xl mb-4">📊</div>
+                        <h2 class="text-2xl font-bold mb-2">Nenhum dado disponível</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                            Realize avaliações para visualizar análises estatísticas
+                        </p>
+                        <button onclick="navigateTo('home')"
+                            class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+                            Realizar Avaliações
+                        </button>
+                    </div>
+                `;
+            }
+
+            // Calculate statistics
+            const totalAssessments = appState.assessments.length;
+            const uniquePatients = new Set(appState.assessments.map(a => a.patientName)).size;
+
+            // Count by block
+            const blockCounts = {};
+            const blockAverages = {};
+            Object.keys(mentalBlocks).forEach(key => {
+                const blockAssessments = appState.assessments.filter(a => a.block === key);
+                blockCounts[mentalBlocks[key].name] = blockAssessments.length;
+                if (blockAssessments.length > 0) {
+                    const avg = blockAssessments.reduce((sum, a) => sum + parseFloat(a.result.average), 0) / blockAssessments.length;
+                    blockAverages[mentalBlocks[key].name] = avg.toFixed(2);
+                }
+            });
+
+            setTimeout(() => {
+                renderCharts(blockCounts, blockAverages);
+            }, 100);
+
+            return `
+                <div class="fade-in">
+                    <h2 class="text-3xl font-bold mb-6">Analytics</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                            <div class="text-3xl font-bold text-primary">${totalAssessments}</div>
+                            <div class="text-gray-600 dark:text-gray-400">Total de Avaliações</div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                            <div class="text-3xl font-bold text-primary">${uniquePatients}</div>
+                            <div class="text-gray-600 dark:text-gray-400">Pacientes Únicos</div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                            <div class="text-3xl font-bold text-primary">${Object.keys(blockCounts).filter(k => blockCounts[k] > 0).length}</div>
+                            <div class="text-gray-600 dark:text-gray-400">Travas Avaliadas</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                            <h3 class="text-xl font-bold mb-4">Avaliações por Trava</h3>
+                            <canvas id="blockCountChart"></canvas>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                            <h3 class="text-xl font-bold mb-4">Intensidade Média por Trava</h3>
+                            <canvas id="blockAverageChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-bold mb-4">Timeline de Avaliações</h3>
+                        <div class="space-y-2 max-h-96 overflow-y-auto">
+                            ${appState.assessments.sort((a, b) => new Date(b.date) - new Date(a.date)).map(a => `
+                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded">
+                                    <div>
+                                        <span class="font-medium">${a.patientName}</span>
+                                        <span class="text-gray-600 dark:text-gray-400 mx-2">•</span>
+                                        <span>${a.blockName}</span>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-sm text-gray-600 dark:text-gray-400">
+                                            ${new Date(a.date).toLocaleDateString('pt-BR')}
+                                        </span>
+                                        <span class="px-3 py-1 rounded font-bold ${getIntensityColor(parseFloat(a.result.average))}">
+                                            ${a.result.average}
+                                        </span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCharts(blockCounts, blockAverages) {
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#e5e7eb' : '#374151';
+            const gridColor = isDark ? '#374151' : '#e5e7eb';
+
+            // Count chart
+            const ctxCount = document.getElementById('blockCountChart');
+            if (ctxCount) {
+                new Chart(ctxCount, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(blockCounts),
+                        datasets: [{
+                            label: 'Número de Avaliações',
+                            data: Object.values(blockCounts),
+                            backgroundColor: '#5D5CDE',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                                titleColor: textColor,
+                                bodyColor: textColor,
+                                borderColor: gridColor,
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: textColor },
+                                grid: { color: gridColor }
+                            },
+                            x: {
+                                ticks: { color: textColor },
+                                grid: { color: gridColor }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Average chart
+            const ctxAvg = document.getElementById('blockAverageChart');
+            if (ctxAvg) {
+                new Chart(ctxAvg, {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(blockAverages),
+                        datasets: [{
+                            label: 'Intensidade Média',
+                            data: Object.values(blockAverages),
+                            borderColor: '#5D5CDE',
+                            backgroundColor: 'rgba(93, 92, 222, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                                titleColor: textColor,
+                                bodyColor: textColor,
+                                borderColor: gridColor,
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 10,
+                                ticks: { color: textColor },
+                                grid: { color: gridColor }
+                            },
+                            x: {
+                                ticks: { color: textColor },
+                                grid: { color: gridColor }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function exportPatientData(patientName, format) {
+            const patientAssessments = appState.assessments.filter(a => a.patientName === patientName);
+
+            if (format === 'csv') {
+                let csv = 'Data,Trava,Tipo,Intensidade Média,Nível,Pontuação Total\n';
+                patientAssessments.forEach(a => {
+                    csv += `${new Date(a.date).toLocaleString('pt-BR')},${a.blockName},${a.type === 'adult' ? 'Adulto' : 'Infantil'},${a.result.average},${a.result.level},${a.result.sum}\n`;
+                });
+                downloadFile(csv, `${patientName}_avaliacoes.csv`, 'text/csv');
+            } else if (format === 'json') {
+                const json = JSON.stringify(patientAssessments, null, 2);
+                downloadFile(json, `${patientName}_avaliacoes.json`, 'application/json');
+            }
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Generate Final Report for Patient
+        function generateFinalReport(patientName) {
+            const patient = appState.patients.find(p => p.name === patientName);
+            const patientAssessments = appState.assessments.filter(a => a.patientName === patientName);
+
+            if (patientAssessments.length === 0) {
+                showModal('Sem Dados', '<p>Não há avaliações suficientes para gerar um relatório final.</p>', [
+                    { label: 'OK', onClick: 'closeModal()' }
+                ]);
+                return;
+            }
+
+            // Calculate statistics
+            const blockSummary = {};
+            patientAssessments.forEach(a => {
+                if (!blockSummary[a.blockName]) {
+                    blockSummary[a.blockName] = {
+                        count: 0,
+                        totalAvg: 0,
+                        levels: []
+                    };
+                }
+                blockSummary[a.blockName].count++;
+                blockSummary[a.blockName].totalAvg += parseFloat(a.result.average);
+                blockSummary[a.blockName].levels.push(a.result.level);
+            });
+
+            // Calculate overall average
+            let overallSum = 0;
+            let overallCount = 0;
+            const criticalBlocks = [];
+            const improvingBlocks = [];
+
+            Object.keys(blockSummary).forEach(blockName => {
+                const avg = blockSummary[blockName].totalAvg / blockSummary[blockName].count;
+                blockSummary[blockName].average = avg.toFixed(2);
+                overallSum += avg;
+                overallCount++;
+
+                if (avg > 6.6) {
+                    criticalBlocks.push(blockName);
+                } else if (avg <= 3.3) {
+                    improvingBlocks.push(blockName);
+                }
+            });
+
+            const overallAverage = (overallSum / overallCount).toFixed(2);
+            const overallLevel = overallAverage <= 3.3 ? 'Baixa' : overallAverage <= 6.6 ? 'Média' : 'Alta';
+
+            // Generate recommendations
+            let recommendations = [];
+            if (criticalBlocks.length > 0) {
+                recommendations.push(`Focar no tratamento das travas: ${criticalBlocks.join(', ')}`);
+                criticalBlocks.forEach(blockName => {
+                    const blockKey = Object.keys(mentalBlocks).find(k => mentalBlocks[k].name === blockName);
+                    if (blockKey && mentalBlocks[blockKey].techniques) {
+                        recommendations.push(`Para ${blockName}, considerar: ${mentalBlocks[blockKey].techniques[0]}`);
+                    }
+                });
+            }
+            if (improvingBlocks.length > 0) {
+                recommendations.push(`Progresso positivo identificado em: ${improvingBlocks.join(', ')}`);
+            }
+
+            // Display report
+            const reportHtml = `
+                <div class="space-y-4">
+                    <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-3">RELATÓRIO FINAL DE AVALIAÇÃO</h4>
+                        <p><strong>Paciente:</strong> ${patientName}</p>
+                        <p><strong>Data do Relatório:</strong> ${new Date().toLocaleString('pt-BR')}</p>
+                        <p><strong>Total de Avaliações:</strong> ${patientAssessments.length}</p>
+                        <p><strong>Período:</strong> ${new Date(patientAssessments[patientAssessments.length - 1].date).toLocaleDateString('pt-BR')} até ${new Date(patientAssessments[0].date).toLocaleDateString('pt-BR')}</p>
+                    </div>
+
+                    <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                        <h4 class="font-bold mb-3">RESUMO GERAL</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Intensidade Média Geral</p>
+                                <p class="text-2xl font-bold ${overallLevel === 'Baixa' ? 'text-green-500' : overallLevel === 'Média' ? 'text-yellow-500' : 'text-red-500'}">
+                                    ${overallAverage}
+                                </p>
+                                <p class="text-sm">${overallLevel}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Travas Avaliadas</p>
+                                <p class="text-2xl font-bold text-primary">${Object.keys(blockSummary).length}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                        <h4 class="font-bold mb-3">ANÁLISE POR TRAVA MENTAL</h4>
+                        <div class="space-y-2">
+                            ${Object.entries(blockSummary).map(([blockName, data]) => `
+                                <div class="border-l-4 ${data.average <= 3.3 ? 'border-green-500' : data.average <= 6.6 ? 'border-yellow-500' : 'border-red-500'} pl-3 py-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-medium">${blockName}</span>
+                                        <span class="font-bold ${data.average <= 3.3 ? 'text-green-500' : data.average <= 6.6 ? 'text-yellow-500' : 'text-red-500'}">
+                                            ${data.average}
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        ${data.count} avaliação(ões) realizada(s)
+                                    </p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    ${criticalBlocks.length > 0 ? `
+                    <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded">
+                        <h4 class="font-bold mb-2 text-red-700 dark:text-red-400">⚠️ ÁREAS DE ATENÇÃO PRIORITÁRIA</h4>
+                        <ul class="list-disc pl-5 text-sm">
+                            ${criticalBlocks.map(b => `<li>${b}</li>`).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+
+                    ${improvingBlocks.length > 0 ? `
+                    <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded">
+                        <h4 class="font-bold mb-2 text-green-700 dark:text-green-400">✅ ÁREAS COM PROGRESSO</h4>
+                        <ul class="list-disc pl-5 text-sm">
+                            ${improvingBlocks.map(b => `<li>${b}</li>`).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+
+                    <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                        <h4 class="font-bold mb-3">RECOMENDAÇÕES TERAPÊUTICAS</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-sm">
+                            ${recommendations.map(r => `<li>${r}</li>`).join('')}
+                            <li>Continuar monitoramento regular através de avaliações periódicas</li>
+                            <li>Considerar encaminhamento para especialistas quando necessário</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-xs text-gray-500 dark:text-gray-500 mt-4 p-3 border-t border-gray-300 dark:border-gray-700">
+                        <p>Este relatório foi gerado automaticamente pelo Dashboard de Travas Mentais e deve ser interpretado por profissional qualificado.</p>
+                        <p class="mt-1">Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
+                    </div>
+                </div>
+            `;
+
+            showModal('Relatório Final - ' + patientName, reportHtml, [
+                { label: 'Imprimir', onClick: 'printReport()', className: 'bg-purple-500 text-white hover:bg-purple-600' },
+                { label: 'Fechar', onClick: 'closeModal()', className: 'bg-gray-200 dark:bg-gray-700' }
+            ]);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function printPatientData(patientName) {
+            generateFinalReport(patientName);
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        // Main render function
+        function render() {
+            const app = document.getElementById('app');
+            let content = '';
+
+            switch (appState.currentPage) {
+                case 'home':
+                    content = renderHome();
+                    break;
+                case 'block':
+                    content = renderBlock();
+                    setTimeout(() => showTab('symptoms'), 0);
+                    break;
+                case 'patients':
+                    content = renderPatients();
+                    break;
+                case 'patient-detail':
+                    content = renderPatientDetail();
+                    break;
+                case 'analytics':
+                    content = renderAnalytics();
+                    break;
+                default:
+                    content = renderHome();
+            }
+
+            app.innerHTML = content;
+        }
+
+        // Initialize app
+        initDB().then(() => {
+            loadData();
+        }).catch(error => {
+            console.log('Error initializing database:', JSON.stringify({ message: error.message }));
+            render();
+        });
+    </script>
+</body>
+</html>
