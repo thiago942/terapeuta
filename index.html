@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TQ-BJJ - Thiago Quintanilha Brazilian Jiu-Jitsu</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+.section-title {
+  font-size: 36px;
+  color: #ff6347;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.section-subtitle {
+  text-align: center;
+  font-size: 18px;
+  color: #ccc;
+  margin-bottom: 40px;
+}
+.card {
+  background: #2d2d2d;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 4px;
+  background: #1a1a1a;
+  color: #fff;
+}
+input[type="submit"], button {
+  background: #ff6347;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 20px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+input[type="submit"]:hover, button:hover {
+  background: #cc4f38;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+th, td {
+  border: 1px solid #444;
+  padding: 10px;
+  text-align: left;
+}
+th {
+  background: #333;
+}
+@media (max-width:650px) {
+  .container {padding: 5px;}
+  table, th, td {font-size:13px;}
+  .card {padding:10px;}
+  .avisos-flex {flex-direction:column;}
+}
+#modalHorarios {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.85);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+#modalHorarios.active {
+  display: flex;
+}
+#modalHorariosContent {
+  background: #222;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
+  color: #fff;
+  box-shadow: 0 0 10px #000;
+  overflow-y: auto;
+  max-height: 85vh;
+}
+#modalHorariosContent h2 {color: #ff6347; margin-top: 0;}
+#modalHorariosContent button {
+  background: #ff6347;
+  border: none; padding: 8px 16px;
+  border-radius: 5px; color: #fff;
+  margin-top: 15px; cursor: pointer;
+}
+#modalHorariosContent button:hover {
+  background: #cc4f38;
+}
+.avisos-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+</style>
+</head>
+<body>
+<!-- Hero Section -->
+<section id="home" class="hero">
+<div class="container">
+  <h1>Transforme Sua Vida com <span style="color:#ff6347">Jiu-Jitsu</span></h1>
+  <p style="font-size: 24px; color: #ccc;">Academia TQ-BJJ - Crianças, Jovens e Adultos</p>
+  <p>Professor Thiago Quintanilha - Faixa Preta 3º Grau<br>
+     Mais de 10 anos formando campeões e transformando vidas
+  </p>
+  <div class="btn-group">
+    <a href="#" class="btn" id="btnHorarios">📅 Ver Horários</a>
+    <a href="https://wa.me/5522997469193?text=Olá!%20Quero%20agendar%20minha%20aula%20experimental!" target="_blank" class="btn btn-secondary" style="background:#44c767;margin-left:8px;">🥋 Aula Experimental Grátis</a>
+  </div>
+</div>
+</section>
+<!-- Modal Horários -->
+<div id="modalHorarios">
+  <div id="modalHorariosContent">
+    <h2>📢 Aulas de Jiu-Jitsu e NO-GI</h2>
+    <p>Olá! 👋</p>
+    <p>Na nossa academia, Jiu-Jitsu é mais do que um esporte! Aqui, seu filho(a) vai desenvolver disciplina, respeito, força física e mental com o Prof. Thiago Quintanilha (faixa preta 3º grau). Também oferecemos atendimento especializado para alunos com TDAH, TEA e autismo (grau 1). 💪</p>
+    <h3>Horários e Valores:</h3>
+    <ul>
+      <li>👦 Aulas Infantis (Jiu-Jitsu)</li>
+      <li>🟢 Segunda, quarta e sexta – 10h (7 a 15 anos)</li>
+      <li>🔵 Segunda e quarta – 18h20 (4 a 6 anos)</li>
+      <li>🟠 Segunda e quarta – 19h30 (7 a 9 anos)</li>
+      <li>🟣 Terça e quinta – 18h20 (10 a 15 anos)</li>
+      <li>🟡 Sexta – 18h (4 a 6 anos)</li>
+      <li>🟤 Sexta – 19h (7 a 15 anos)</li>
+      <li>💰 Só Jiu-Jitsu: R$ 110</li>
+      <li>💪 Aulas para Adultos (Jiu-Jitsu)</li>
+      <li>🟢 Segunda, quarta e sexta – 6h00 e 7h30 (Ranzinza)</li>
+      <li>🔵 Terça, quinta e sexta – 19h40 (Thiago Quintanilha)</li>
+      <li>💰 Só Jiu-Jitsu: R$ 110</li>
+      <li>🔥 NO-GI (Jiu-Jitsu sem kimono)</li>
+      <li>🟣 Sábado – 9h (Infantil - Thiago Quintanilha)</li>
+      <li>🔴 Segunda e terça – 21h (Adulto - Rolian Trindade)</li>
+      <li>💰 Mensalidade do NO-GI: R$ 110</li>
+      <li>🔹 Pacotes Especiais: Jiu-Jitsu (segunda a sexta) + NO-GI (sábado): R$ 220</li>
+      <li>🟠 Aulas Extras de NO-GI + 3x Jiu-Jitsu: R$ 170</li>
+      <li>💥 Aulas Particulares também para empresários com atendimento individual.</li>
+      <li>📍 Endereço: Rua Dimas Teixeira, nº 52 – Jardim Esperança, Cabo Frio/RJ</li>
+      <li>🎉 Aula experimental gratuita (exceto às sextas-feiras) 💪</li>
+    </ul>
+    <p>Prof. Thiago Quintanilha<br>
+    Faixa Preta 3º Grau - IBJJF, CBJJ e outras federações</p>
+    <button onclick="document.getElementById('modalHorarios').classList.remove('active')">Fechar</button>
+  </div>
+</div>
+<!-- Cadastro de Aluno -->
+<section id="cadastro" class="bg-dark">
+<div class="container">
+  <h2 class="section-title">📋 Cadastro de Aluno</h2>
+  <p class="section-subtitle">Preencha os dados abaixo para cadastrar um novo aluno</p>
+  <div class="card" style="margin-bottom: 40px;">
+    <form id="formCadastro">
+      <label>Nome Completo:</label>
+      <input type="text" name="nome" required>
+      <label>Telefone do Aluno (com DDD):</label>
+      <input type="tel" name="telefone" required pattern="^\d{10,11}$" maxlength="11" minlength="10" placeholder="Ex: 21987654321">
+      <label>Data de Nascimento:</label>
+      <input type="date" name="nascimento" required>
+      <label>Faixa Atual:</label>
+      <select name="faixa" required>
+        <option value="">Selecione</option>
+        <option value="branca">Branca</option>
+        <option value="cinza">Cinza</option>
+        <option value="amarela">Amarela</option>
+        <option value="laranja">Laranja</option>
+        <option value="verde">Verde</option>
+        <option value="azul">Azul</option>
+        <option value="roxa">Roxa</option>
+        <option value="marrom">Marrom</option>
+        <option value="preta">Preta</option>
+      </select>
+      <label>Data de entrada na academia:</label>
+      <input type="date" name="entrada" required>
+      <label>Data do último pagamento:</label>
+      <input type="date" name="pagamento" required>
+      <label>Turno dos treinos:</label>
+      <select name="turno" required>
+        <option value="">Selecione</option>
+        <option value="manhã">Manhã</option>
+        <option value="tarde">Tarde</option>
+        <option value="noite">Noite</option>
+      </select>
+      <label>Dias de treino por semana:</label>
+      <select name="treinos" required>
+        <option value="3">3 dias</option>
+        <option value="5">5 dias</option>
+      </select>
+      <label>Pagamento em dia?</label>
+      <select name="pago">
+        <option value="nao" selected>Não</option>
+        <option value="sim">Sim</option>
+      </select>
+      <input type="submit" value="Cadastrar" class="btn btn-primary">
+    </form>
+  </div>
+  <div class="card" style="margin-bottom: 40px;">
+    <h3>Acesso do Professor</h3>
+    <input type="password" id="senha" placeholder="Senha do professor">
+    <button onclick="acessarPainel()" class="btn btn-secondary">Acessar Painel</button>
+  </div>
+  <div class="card" id="painel" style="display:none;">
+    <h2>Painel do Professor</h2>
+    <div class="avisos-flex">
+      <div id="avisosAniversario"></div>
+      <div id="avisosTrocaFaixa" style="text-align:right; min-width:280px;"></div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+        <th>Nome</th>
+        <th>Telefone</th>
+        <th>Idade</th>
+        <th>Faixa</th>
+        <th>Tempo</th>
+        <th>Status</th>
+        <th>Turno</th>
+        <th>Dias</th>
+        <th>Pago?</th>
+        <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaAlunos"></tbody>
+    </table>
+  </div>
+</div>
+</section>
+<footer>
+  <div class="container">
+    <p>&copy; 2025 TQ-BJJ - Academia Thiago Quintanilha Brazilian Jiu-Jitsu</p>
+    <p>Transformando vidas através do Jiu-Jitsu</p>
+  </div>
+</footer>
+<script>
+function calcularIdade(nasc) {
+  const hoje = new Date();
+  const nascimento = new Date(nasc);
+  let idade = hoje.getFullYear() - nascimento.getFullYear();
+  if (hoje.getMonth() < nascimento.getMonth()
+   || (hoje.getMonth() === nascimento.getMonth() && hoje.getDate() < nascimento.getDate())) {
+    idade--;
+  }
+  return idade;
+}
+function calcularMeses(entrada) {
+  const hoje = new Date();
+  const inicio = new Date(entrada);
+  return (hoje.getFullYear() - inicio.getFullYear()) * 12 + (hoje.getMonth() - inicio.getMonth());
+}
+function verificaTrocaFaixaIBJJF(aluno, idade, meses) {
+  if (aluno.faixa === "cinza" && idade >= 7) return "Troca p/ Amarela (IBJJF)";
+  if (aluno.faixa === "amarela" && idade >= 9) return "Troca p/ Laranja (IBJJF)";
+  if (aluno.faixa === "laranja" && idade >= 11) return "Troca p/ Verde (IBJJF)";
+  if (aluno.faixa === "verde" && idade >= 16) return "Troca p/ Azul (IBJJF)";
+  if (aluno.faixa === "azul" && idade >= 17) return "Troca p/ Roxa (IBJJF)";
+  if (aluno.faixa === "roxa" && idade >= 18) return "Troca p/ Marrom (IBJJF)";
+  if (aluno.faixa === "marrom" && idade >= 19) return "Troca p/ Preta (IBJJF)";
+  return "";
+}
+function verificaAniversario(aluno) {
+  const hoje = new Date();
+  let nascimento = new Date(aluno.nascimento);
+  if (isNaN(nascimento.getTime()) && aluno.nascimento.includes("/")) {
+    const parts = aluno.nascimento.split("/");
+    nascimento = new Date(parts[2], parts[1] - 1, parts[0]);
+  }
+  return hoje.getDate() === nascimento.getDate() && hoje.getMonth() === nascimento.getMonth();
+}
+function verificaInadimplencia(aluno) {
+  if (!aluno.pagamento) return false;
+  const hoje = new Date();
+  const pagamento = new Date(aluno.pagamento);
+  const diff = (hoje - pagamento) / (1000*60*60*24);
+  return diff > 30;
+}
+function enviarCobranca(nome, telefone) {
+  const hoje = new Date();
+  const meses = [
+    "Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto",
+    "Setembro","Outubro","Novembro","Dezembro"
+  ];
+  const mesRef = meses[hoje.getMonth()] + "/" + hoje.getFullYear();
+  const msg = `Olá ${nome}! Notamos que não identificamos o pagamento da sua mensalidade referente a ${mesRef}. Por favor, regularize para continuar os treinos normalmente. Qualquer dúvida estamos à disposição. Obrigado!`;
+  let whatsapp = "https://wa.me/";
+  if (telefone && telefone.length >= 10) whatsapp += `55${telefone}?text=${encodeURIComponent(msg)}`;
+  else whatsapp += `?text=${encodeURIComponent(msg)}`;
+  window.open(whatsapp, "_blank");
+}
+document.getElementById("formCadastro").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const dados = Object.fromEntries(new FormData(e.target));
+  if (!dados.hasOwnProperty("pago")) dados.pago = "nao";
+  const alunos = JSON.parse(localStorage.getItem("alunos")) || [];
+  alunos.push(dados);
+  localStorage.setItem("alunos", JSON.stringify(alunos));
+  alert("Cadastro realizado com sucesso!");
+  e.target.reset();
+});
+function removerAluno(index) {
+  if (confirm('Deseja cancelar/remover este aluno?')) {
+    const alunos = JSON.parse(localStorage.getItem("alunos")) || [];
+    alunos.splice(index, 1);
+    localStorage.setItem("alunos", JSON.stringify(alunos));
+    acessarPainel();
+  }
+}
+function statusFaixaPreta(meses) {
+  const anos = Math.floor(meses / 12);
+  if (anos >= 3 && anos < 6) return "Faixa Preta – 1º grau";
+  if (anos >= 6 && anos < 9) return "Faixa Preta – 2º grau";
+  if (anos >= 9 && anos < 14) return "Faixa Preta – 3º grau";
+  if (anos >= 14 && anos < 19) return "Faixa Preta – 4º grau";
+  if (anos >= 19 && anos < 24) return "Faixa Preta – 5º grau";
+  if (anos >= 24) return "Faixa Preta – 6º grau";
+  return "Faixa Preta – sem grau";
+}
+function statusGraduacao(faixa, idade, meses) {
+  if (faixa === "preta") return statusFaixaPreta(meses);
+  if (idade <= 15) {
+    if (faixa === "branca" && meses >= 12) return "Pronto para Cinza";
+    if (faixa === "cinza" && meses >= 12) return "Pronto para Amarela";
+    if (faixa === "amarela" && meses >= 12) return "Pronto para Laranja";
+    if (faixa === "laranja" && meses >= 12) return "Pronto para Verde";
+    return "Em progresso";
+  } else {
+    if (faixa === "branca" && meses >= 24) return "Pronto para Azul";
+    if (faixa === "azul" && meses >= 24) return "Pronto para Roxa";
+    if (faixa === "roxa" && meses >= 18) return "Pronto para Marrom";
+    if (faixa === "marrom" && meses >= 12) return "Pronto para Preta";
+    return "Em progresso";
+  }
+}
+function togglePago(index) {
+  const alunos = JSON.parse(localStorage.getItem("alunos")) || [];
+  alunos[index].pago = alunos[index].pago === "sim" ? "nao" : "sim";
+  localStorage.setItem("alunos", JSON.stringify(alunos));
+  acessarPainel();
+}
+function acessarPainel() {
+  const senha = document.getElementById("senha").value;
+  if (senha === "hiAgo896@") {
+    document.getElementById("painel").style.display = "block";
+    const alunos = JSON.parse(localStorage.getItem("alunos")) || [];
+    const tabela = document.getElementById("tabelaAlunos");
+    tabela.innerHTML = "";
+    let listaAniversariantes = [];
+    let listaTrocaFaixa = [];
+    const hoje = new Date();
+    alunos.forEach(aluno => {
+      let nascimento = new Date(aluno.nascimento);
+      if (isNaN(nascimento.getTime()) && aluno.nascimento.includes("/")) {
+        const parts = aluno.nascimento.split("/");
+        nascimento = new Date(parts[2], parts[1] - 1, parts[0]);
+      }
+      if (nascimento.getDate() === hoje.getDate() && nascimento.getMonth() === hoje.getMonth()) {
+        listaAniversariantes.push(aluno.nome);
+      }
+      const idade = calcularIdade(aluno.nascimento);
+      const meses = calcularMeses(aluno.entrada);
+      const troca = verificaTrocaFaixaIBJJF(aluno, idade, meses);
+      if (troca) {
+        listaTrocaFaixa.push(`${aluno.nome}: <span style="color:orange;">${troca}</span>`);
+      }
+    });
+    const avisos = document.getElementById("avisosAniversario");
+    if (avisos) {
+      avisos.innerHTML = listaAniversariantes.length > 0 ?
+        `<div style="background:#ff6347;color:#fff;padding:10px;border-radius:6px;margin-bottom:12px;text-align:left;font-size:20px;">
+        🎉 Aniversariantes de hoje: ${listaAniversariantes.join(", ")}
+        </div>` : "";
+    }
+    const avisosFaixa = document.getElementById("avisosTrocaFaixa");
+    if (avisosFaixa) {
+      avisosFaixa.innerHTML = listaTrocaFaixa.length > 0 ?
+        `<div style="background:#444;color:#ff8c00;padding:10px;border-radius:6px;margin-bottom:12px;font-size:16px;">
+        🔄 <strong>Alunos prontos para troca IBJJF:</strong> <br> ${listaTrocaFaixa.join("<br>")}
+        </div>` : "";
+    }
+    alunos.forEach((aluno, idx) => {
+      const idade = calcularIdade(aluno.nascimento);
+      const meses = calcularMeses(aluno.entrada);
+      const status = statusGraduacao(aluno.faixa, idade, meses);
+      const trocaFaixaIBJJF = verificaTrocaFaixaIBJJF(aluno, idade, meses);
+      const aniversario = verificaAniversario(aluno) ? "🎂 Aniversário hoje!" : "";
+      const inadimplencia = verificaInadimplencia(aluno)
+        ? `<span class="inadimplente-alert" style="color:#f44;cursor:pointer;" title="Clique para enviar cobrança" onclick="enviarCobranca('${aluno.nome}','${aluno.telefone || ""}')">⚠️ Inadimplente • Cobrar</span>`
+        : "";
+      tabela.innerHTML += `<tr>
+        <td>${aluno.nome}</td>
+        <td>${aluno.telefone || ""}</td>
+        <td>${idade}</td>
+        <td>${aluno.faixa}</td>
+        <td>${meses} meses</td>
+        <td>${status} <br>
+          <span style="color:orange">${trocaFaixaIBJJF}</span><br>
+          <span style="color:#4fd">${aniversario}</span><br>
+          ${inadimplencia}
+        </td>
+        <td>${aluno.turno}</td>
+        <td>${aluno.treinos}</td>
+        <td>
+          <span 
+            style="background:${aluno.pago==='sim'?'#44c767':'#f44'}; color:#fff; padding:6px 15px; border-radius:10px; cursor:pointer;" 
+            title="Clique para alterar status de pagamento" 
+            onclick="togglePago(${idx})">
+            ${aluno.pago==='sim'?'Sim':'Não'}
+          </span>
+        </td>
+        <td><button onclick="removerAluno(${idx})" style="background:#f44;border:none;margin:0 5px;padding:6px 10px;color:#fff;border-radius:3px;cursor:pointer;">Cancelar</button></td>
+      </tr>`;
+    });
+  } else {
+    alert("Senha incorreta.");
+  }
+}
+document.getElementById('btnHorarios').addEventListener('click', function(e){
+  e.preventDefault();
+  document.getElementById('modalHorarios').classList.add('active');
+});
+</script>
+</body>
+</html>
